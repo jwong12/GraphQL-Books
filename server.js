@@ -92,8 +92,41 @@ const RootQueryType = new GraphQLObjectType({
     })
 });
 
+const RootMutationType = new GraphQLObjectType({
+    name: 'Mutation',
+    description: 'Root Mutation',
+    fields: () => ({
+        addBook: {
+            type: BookType,
+            description: 'Add a Book',
+            args: {
+                name: { type: GraphQLNonNull(GraphQLString) },
+                authorId: { type: GraphQLNonNull(GraphQLInt) }
+            },
+            resolve: (parent, args) => { // Add data to the GraphQLList
+                const book = { id: books.length + 1, name: args.name, authorId: args.authorId };
+                books.push(book);
+                return book;
+            }
+        },
+        addAuthor: {
+            type: AuthorType,
+            description: 'Add an Author',
+            args: {
+                name: { type: GraphQLNonNull(GraphQLString) }
+            },
+            resolve: (parent, args) => { // Add data to the GraphQLList
+                const author = { id: authors.length + 1, name: args.name };
+                authors.push(author);
+                return author;
+            }
+        }
+    })
+})
+
 const schema = new GraphQLSchema({
-    query: RootQueryType
+    query: RootQueryType,
+    mutation: RootMutationType
 });
 
 // const schema = new GraphQLSchema({
