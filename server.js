@@ -46,20 +46,43 @@ const BookType = new GraphQLObjectType({
 const AuthorType = new GraphQLObjectType({
     name: 'Author',
     description: 'This represents an author of a book',
-    fields: () => ({
+    fields: () => ({ // fields returns a function because it references BookType
         id: { type: GraphQLNonNull(GraphQLInt) },
-        name: { type: GraphQLNonNull(GraphQLString) }
+        name: { type: GraphQLNonNull(GraphQLString) },
+        books: {
+            type: new GraphQLList(BookType),
+            description: 'List of All Books written by the Author',
+            resolve: (author) => {
+                return books.filter(book => book.authorId === author.id)
+            }
+        }
     })
 });
 
 const RootQueryType = new GraphQLObjectType({
     name: 'Query',
     description: 'Root Query',
-    fields: () => ({
+    fields: () => ({ // fields returns a function because it references AuthorType
+        book: {
+            type: BookType,
+            description: 'A Single Book',
+            args: {
+                id: { type: GraphQLInt }
+            },
+            resolve: (parent, args) => books.find(book => book.id === args.id)
+        },
         books: {
             type: new GraphQLList(BookType),
             description: 'List of All Books',
             resolve: () => books
+        },
+        author: {
+            type: AuthorType,
+            description: 'A Single Author',
+            args: {
+                id: { type: GraphQLInt }
+            },
+            resolve: (parent, args) => authors.find(author => author.id === args.id)
         },
         authors: {
             type: new GraphQLList(AuthorType),
